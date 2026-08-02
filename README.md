@@ -16,7 +16,7 @@ Most teams shipping LLM features test for traditional web vulnerabilities — an
 
 This tool gives you:
 
-1. **`scanner.py`** — a zero-dependency Python CLI that runs 19 automated checks against your LLM API and outputs a structured JSON report.
+1. **`scanner.py`** — a zero-dependency Python CLI that runs 11 automated checks against your LLM API and outputs a structured JSON report.
 2. **`checklist.md`** — a 70+ item manual testing checklist mapped to every entry in the [OWASP Top 10 for LLM Applications 2025](https://owasp.org/www-project-top-10-for-large-language-model-applications/).
 
 ## What the scanner tests
@@ -162,7 +162,7 @@ scanner.py
 │   ├── detect_verbose_error()     — stack trace pattern detection
 │   └── judge_rate_limit()         — throttling verdict logic
 ├── HttpClient                     — stdlib urllib wrapper, TLS options, error normalization
-├── Scanner                        — orchestrates 19 checks, builds JSON report
+├── Scanner                        — orchestrates 11 checks, builds JSON report
 └── CLI                            — argparse, colored output, CI exit codes
 ```
 
