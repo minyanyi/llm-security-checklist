@@ -146,6 +146,52 @@ The automated scanner covers the 🤖 items. The full [checklist.md](checklist.m
 - Misinformation and over-reliance controls
 - Denial-of-wallet and token flooding
 
+## GitHub Action (CI/CD)
+
+Drop this into your pipeline to fail builds on AI security findings:
+
+```yaml
+# .github/workflows/ai-security.yml
+name: AI Security Scan
+on: [push, pull_request]
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run LLM Security Scanner
+        run: |
+          git clone https://github.com/minyanyi/llm-security-checklist /tmp/scanner
+          python /tmp/scanner/scanner.py \
+            --target ${{ secrets.SCAN_TARGET_URL }} \
+            --api-key ${{ secrets.LLM_API_KEY }} \
+            --fail-on high \
+            --output report.json \
+            --no-color
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-security-report
+          path: report.json
+```
+
+Or use the pre-built action:
+
+```yaml
+- uses: minyanyi/llm-security-checklist@main
+  with:
+    target: ${{ secrets.SCAN_TARGET_URL }}
+    api-key: ${{ secrets.LLM_API_KEY }}
+    fail-on: high
+```
+
+The action exits with code 1 if any finding meets or exceeds the `fail-on` severity threshold — perfect for PR gates.
+
 ## Running the tests
 
 ```bash
