@@ -1,0 +1,83 @@
+name: 'AI Security Scanner'
+description: 'Automated AI/LLM security checks. 19 checks covering OWASP LLM Top 10. Prompt injection, SSRF, IDOR, billing races. Zero dependencies.'
+author: 'AI Armor Security'
+
+branding:
+  icon: 'shield'
+  color: 'orange'
+
+inputs:
+  target:
+    description: 'URL of the AI API endpoint to scan'
+    required: true
+  timeout:
+    description: 'Timeout per check in seconds'
+    required: false
+    default: '10'
+  checks:
+    description: 'Comma-separated list of checks to run (default: all)'
+    required: false
+    default: ''
+  fail-on:
+    description: 'Minimum severity to fail the build (critical/high/medium/low/info)'
+    required: false
+    default: 'critical'
+
+outputs:
+  score:
+    description: 'Security score (0-100)'
+  findings:
+    description: 'Number of findings'
+  report:
+    description: 'Path to the scan report file'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Run AI Security Scanner
+      shell: bash
+      run: |
+        python ${{ github.action_path }}/scanner.py \
+          --target "${{ inputs.target }}" \
+          --timeout ${{ inputs.timeout }} \
+          --no-color \
+          ${{ inputs.checks != '' && format('--checks {0}', inputs.checks) || '' }} \
+          > scan_output.txt 2>&1 || true
+
+        cat scan_output.txt
+
+        SCORE=$(grep -oP 'Score:\s*\K\d+' scan_output.txt || echo "0")
+        echo "score=$SCORE" >> $GITHUB_OUTPUT
+
+        FINDINGS=$(grep -c '\[   FAIL\]' scan_output.txt || echo "0")
+        echo "findings=$FINDINGS" >> $GITHUB_OUTPUT
+
+        echo "## AI Security Scan Results" > ai_scan_report.md
+        echo "- **Score:** $SCORE/100" >> ai_scan_report.md
+        echo "- **Findings:** $FINDINGS" >> ai_scan_report.md
+        echo '```' >> ai_scan_report.md
+        cat scan_output.txt >> ai_scan_report.md
+        echo '```' >> ai_scan_report.md
+        echo "report=ai_scan_report.md" >> $GITHUB_OUTPUT
+
+    - name: Check severity threshold
+      shell: bash
+      run: |
+        if [ "${{ inputs.fail-on }}" = "critical" ]; then
+          CRITICAL=$(grep -c '\[   FAIL\].*critical' scan_output.txt || echo "0")
+          if [ "$CRITICAL" -gt 0 ]; then
+            echo "::error::AI Security: $CRITICAL critical finding(s) detected"
+            exit 1
+          fi
+        elif [ "${{ inputs.fail-on }}" = "high" ]; then
+          HIGH=$(grep -c '\[   FAIL\].*\(critical\|high\)' scan_output.txt || echo "0")
+          if [ "$HIGH" -gt 0 ]; then
+            echo "::error::AI Security: $HIGH high+ finding(s) detected"
+            exit 1
+          fi
+        fi

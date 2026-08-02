@@ -1,0 +1,73 @@
+name: AI Security Scan
+
+on:
+  push:
+    paths:
+      - 'src/ai/**'
+      - 'src/llm/**'
+      - 'src/agents/**'
+  pull_request:
+    paths:
+      - 'src/ai/**'
+      - 'src/llm/**'
+      - 'src/agents/**'
+
+jobs:
+  ai-security:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install scanner dependencies
+        run: |
+          pip install requests urllib3
+      
+      - name: Run AI Security Scanner
+        id: scan
+        run: |
+          python scanner.py \
+            --target ${{ secrets.API_ENDPOINT }} \
+            --timeout 10 \
+            --no-color \
+            > scan_output.txt 2>&1 || true
+          
+          cat scan_output.txt
+          
+          # Extract score
+          SCORE=$(grep -oP 'Score:\s*\K\d+' scan_output.txt || echo "0")
+          echo "score=$SCORE" >> $GITHUB_OUTPUT
+          
+          # Count findings
+          FINDINGS=$(grep -c '\[   FAIL\]' scan_output.txt || echo "0")
+          echo "findings=$FINDINGS" >> $GITHUB_OUTPUT
+          
+          # Save report artifact
+          echo "## AI Security Scan Results" > scan_report.md
+          echo "- **Score:** $SCORE/100" >> scan_report.md
+          echo "- **Findings:** $FINDINGS" >> scan_report.md
+          echo "" >> scan_report.md
+          echo "```" >> scan_report.md
+          cat scan_output.txt >> scan_report.md
+          echo "```" >> scan_report.md
+      
+      - name: Upload scan report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ai-security-report
+          path: scan_report.md
+      
+      - name: Fail on critical findings
+        if: ${{ steps.scan.outputs.findings > 0 }}
+        run: |
+          CRITICAL=$(grep -c '\[   FAIL\].*critical' scan_output.txt || echo "0")
+          if [ "$CRITICAL" -gt 0 ]; then
+            echo "::error::AI Security: $CRITICAL critical finding(s) detected"
+            exit 1
+          fi
