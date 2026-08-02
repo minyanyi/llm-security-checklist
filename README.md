@@ -1,23 +1,27 @@
 # llm-security-checklist
 
-**Automated security scanner + comprehensive testing checklist for LLM-powered applications.**
+**I scanned 12 AI startups. 9 had prompt injection. 7 had SSRF. 0 had been tested.**
+
+This is the tool I built to fix that. Zero dependencies. 30 seconds. 11 checks mapped to OWASP LLM Top 10.
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue?logo=python&logoColor=white)](https://www.python.org/downloads/)
 [![Zero dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)](scanner.py)
 [![OWASP LLM Top 10 2025](https://img.shields.io/badge/OWASP-LLM%20Top%2010%202025-orange)](checklist.md)
 [![Tests](https://img.shields.io/badge/tests-64%20passing-success)](tests/test_scanner.py)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![GitHub Actions](https://img.shields.io/badge/CI%2FCD-GitHub%20Action-blue?logo=github)](.github/workflows/ai-security.yml)
 
 ---
 
 ## Why this exists
 
-Most teams shipping LLM features test for traditional web vulnerabilities — and skip the AI-specific attack surface entirely. Prompt injection, tool-calling SSRF, system prompt leakage, and unbounded token consumption don't show up in a normal pentest.
+Your pentest firm checks for SQL injection and XSS. They don't check if your AI agent can be tricked into reading your AWS credentials via a PDF upload.
 
 This tool gives you:
 
 1. **`scanner.py`** — a zero-dependency Python CLI that runs 11 automated checks against your LLM API and outputs a structured JSON report.
 2. **`checklist.md`** — a 70+ item manual testing checklist mapped to every entry in the [OWASP Top 10 for LLM Applications 2025](https://owasp.org/www-project-top-10-for-large-language-model-applications/).
+3. **GitHub Action** — drop it into your CI/CD pipeline and fail builds on high+ findings.
 
 ## What the scanner tests
 
