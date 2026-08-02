@@ -902,7 +902,7 @@ class Scanner:
         result = CheckResult(
             "newapi-mj-idor", "new-api unauthenticated Midjourney image proxy",
             "Access Control", "medium",
-            evidence=["Ref: https://github.com/QuantumNous/new-api/issues/6606"],
+            evidence=["Ref: https://github.com/QuantumNous/new-api/issues/6610"],
             recommendations=[
                 "Move /mj/image/:id route registration below TokenAuth() middleware.",
                 "Add user_id scoping to GetByOnlyMJId() queries.",
@@ -947,7 +947,7 @@ class Scanner:
         result = CheckResult(
             "billing-race-condition", "new-api quota TOCTOU race condition",
             "Business Logic", "critical",
-            evidence=["Ref: https://github.com/QuantumNous/new-api/issues/6607"],
+            evidence=["Ref: https://github.com/QuantumNous/new-api/issues/6609"],
             recommendations=[
                 "Add WHERE remain_quota >= ? to deduction SQL (atomic guard).",
                 "Wrap check+deduct in a transaction with SELECT ... FOR UPDATE.",
