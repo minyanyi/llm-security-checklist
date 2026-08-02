@@ -32,6 +32,8 @@ This tool gives you:
 | 7 | Verbose error / stack trace disclosure | LLM02 | Medium | Sends malformed JSON, wrong content-type, oversized payloads; matches traceback patterns |
 | 8 | Debug endpoint exposure | LLM02 | High | Probes `.env`, `.git/config`, `/actuator/env`, `/metrics`, `/openapi.json`, `/admin`, etc. |
 | 9 | Security header hardening | Hardening | Low | Checks HSTS, CSP, X-Content-Type-Options, Referrer-Policy |
+| 10 | new-api MJ image IDOR | Access Control | Medium | Fingerprints new-api/one-api via /api/status; tests /mj/image/:id for pre-auth access (CVSS 5.3) |
+| 11 | Billing race condition advisory | Business Logic | Critical | Detects new-api/one-api instances and warns about TOCTOU quota race condition (CVSS 9.1) |
 
 Every check produces a structured finding with severity, evidence, and remediation guidance. No false "print statement" results — real detection logic with entropy filtering, canary verification, and signature matching.
 
@@ -160,7 +162,7 @@ scanner.py
 │   ├── detect_verbose_error()     — stack trace pattern detection
 │   └── judge_rate_limit()         — throttling verdict logic
 ├── HttpClient                     — stdlib urllib wrapper, TLS options, error normalization
-├── Scanner                        — orchestrates 9 checks, builds JSON report
+├── Scanner                        — orchestrates 11 checks, builds JSON report
 └── CLI                            — argparse, colored output, CI exit codes
 ```
 
