@@ -450,6 +450,13 @@ def judge_rate_limit(statuses: List[int], retry_after_seen: bool,
     if throttled or retry_after_seen:
         return "pass", (f"Rate limiting observed: {throttled}/{len(statuses)} "
                         f"requests throttled (429/503/529 or Retry-After).")
+    # If the chat endpoint doesn't exist (404/405), rate-limiting is not
+    # assessable — reporting FAIL would be a false positive (the surface
+    # is absent, not unprotected).
+    absent = sum(1 for s in statuses if s in (404, 405, 501))
+    if absent == len(statuses):
+        return "skipped", ("Chat endpoint returned 404/405 on every probe — no "
+                           "LLM API surface to rate-limit here. Not assessed.")
     server_errors = sum(1 for s in statuses if 500 <= s < 600)
     if server_errors > len(statuses) / 2:
         return "warn", ("Majority of probe requests returned 5xx errors; "
