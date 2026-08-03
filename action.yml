@@ -1,5 +1,5 @@
 name: 'AI Security Scanner'
-description: 'Automated AI/LLM security checks. 19 checks covering OWASP LLM Top 10. Prompt injection, SSRF, IDOR, billing races. Zero dependencies.'
+description: 'Automated AI/LLM security checks. 11 checks covering OWASP LLM Top 10. Prompt injection, SSRF, IDOR, billing races. Zero dependencies.'
 author: 'AI Armor Security'
 
 branding:
@@ -10,6 +10,10 @@ inputs:
   target:
     description: 'URL of the AI API endpoint to scan'
     required: true
+  api-key:
+    description: 'API key for authenticated endpoints (optional; unauthenticated scans work without it)'
+    required: false
+    default: ''
   timeout:
     description: 'Timeout per check in seconds'
     required: false
@@ -46,6 +50,7 @@ runs:
           --target "${{ inputs.target }}" \
           --timeout ${{ inputs.timeout }} \
           --no-color \
+          ${{ inputs.api-key != '' && format('--api-key "{0}"', inputs.api-key) || '' }} \
           ${{ inputs.checks != '' && format('--checks {0}', inputs.checks) || '' }} \
           > scan_output.txt 2>&1 || true
 

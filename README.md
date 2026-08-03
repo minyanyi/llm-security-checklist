@@ -185,9 +185,9 @@ Or use the pre-built action:
 ```yaml
 - uses: minyanyi/llm-security-checklist@main
   with:
-    target: ${{ secrets.SCAN_TARGET_URL }}
-    api-key: ${{ secrets.LLM_API_KEY }}
-    fail-on: high
+    target: ${{ vars.STAGING_URL }}
+    api-key: *** secrets.LLM_API_KEY }}
+    fail-on: critical
 ```
 
 The action exits with code 1 if any finding meets or exceeds the `fail-on` severity threshold — perfect for PR gates.
