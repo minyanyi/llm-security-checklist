@@ -1,8 +1,8 @@
 # llm-security-checklist
 
-**I scanned 12 AI startups. 9 had prompt injection. 7 had SSRF. 0 had been tested.**
+**3 published vulnerabilities. 2 major AI gateways. One found a CVSS 9.1 billing race condition.**
 
-This is the tool I built to fix that. Zero dependencies. 30 seconds. 11 checks mapped to OWASP LLM Top 10.
+I audit LLM gateways for a living. Every serious finding above was verified in source and publicly disclosed (QuantumNous/new-api#6609, #6610; songquanpeng/one-api#2440). This is the scanner I built so you don't have to hire me first — zero dependencies, 30 seconds, 11 checks mapped to OWASP LLM Top 10.
 
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue?logo=python&logoColor=white)](https://www.python.org/downloads/)
 [![Zero dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)](scanner.py)
